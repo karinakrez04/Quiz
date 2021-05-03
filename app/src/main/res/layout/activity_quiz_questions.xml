@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fillViewport="true"
     tools:context=".QuizQuestionsActivity">
 
@@ -14,18 +13,40 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-
-
-
-        <TextView
-            android:id="@+id/tv_question"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:gravity="center"
-            android:textColor="#363A43"
-            android:textSize="22sp"
-            tools:text="Какой это самолет?" />
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btn_fifty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:scaleType="centerCrop"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_fifty" />
+
+            <TextView
+                android:id="@+id/tv_question"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:textColor="#363A43"
+                android:textSize="22sp"
+                tools:text="Какой это самолет?" />
+
+            <ImageButton
+                android:id="@+id/btn_friend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:scaleType="centerCrop"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_user" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/iv_image"

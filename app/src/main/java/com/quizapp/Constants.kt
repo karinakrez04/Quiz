@@ -1,15 +1,5 @@
 package com.quizapp
 
-import android.content.ContentValues
-import android.content.ContentValues.TAG
-import android.util.Log
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-
 
 object Constants {
     // TODO (STEP 1: Create a constant variables which we required in the result screen.)

@@ -14,15 +14,13 @@ import com.quizapp.databinding.ActivityQuizQuestionsBinding
 class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions), View.OnClickListener {
     private val binding by viewBinding<ActivityQuizQuestionsBinding>()
     private var mCurrentPosition: Int = 1 // Default and the first question position
-    private var mQuestionsList: ArrayList<Question>? = null
+    private var mQuestionsList = Constants.getQuestions()
 
     private var mSelectedOptionPosition: Int = 0
     private var mCorrectAnswers: Int = 0
 
     // TODO (STEP 3: Create a variable for getting the name from intent.)
-    // START
     private var mUserName: String? = null
-    // END
 
     /**
      * This function is auto created by Android when the Activity Class is created.
@@ -30,25 +28,26 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        binding.shareText1T.setOnClickListener {
-//            val intent = Intent()
-//            intent.action = Intent.ACTION_SEND
-//            intent.putExtra(Intent.EXTRA_TEXT, "Hey Check out this Great app:")
-//            intent.type = "text/plain"
-//            startActivity(Intent.createChooser(intent, "Share To:"))
-//        }
-
-        // This is used to align the xml view to this class
-        setContentView(R.layout.activity_quiz_questions)
+        setQuestion()
+        //Обработка нажатия на кнопку "Помощь друга"
+        binding.btnFriend.setOnClickListener {
+            val intent = Intent()
+            intent.action = Intent.ACTION_SEND
+            intent.putExtra(Intent.EXTRA_TEXT, buildString {
+                append("${binding.tvQuestion.text}\n")
+                append("1. ${binding.tvOptionOne.text}\n")
+                append("2. ${binding.tvOptionTwo.text}\n")
+                append("3. ${binding.tvOptionThree.text}\n")
+                append("4. ${binding.tvOptionFour.text}\n")
+            })
+            intent.type = "text/plain"
+            startActivity(Intent.createChooser(intent, "Share To:"))
+        }
 
         // TODO (STEP 4: Get the NAME from intent and assign it the variable.)
         // START
         mUserName = intent.getStringExtra(Constants.USER_NAME)
         // END
-
-        mQuestionsList = Constants.getQuestions()
-
-        setQuestion()
 
         binding.tvOptionOne.setOnClickListener(this)
         binding.tvOptionTwo.setOnClickListener(this)
@@ -79,28 +78,27 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                 if (mSelectedOptionPosition == 0) {
                     mCurrentPosition++
                     when {
-                        mCurrentPosition <= mQuestionsList!!.size -> {
+                        mCurrentPosition <= mQuestionsList.size -> {
                             setQuestion()
                         }
                         else -> {
-
                             // TODO (STEP 5: Now remove the toast message and launch the result screen which we have created and also pass the user name and score details to it.)
                             // START
                             val intent =
                                 Intent(this@QuizQuestionsActivity, ResultActivity::class.java)
                             intent.putExtra(Constants.USER_NAME, mUserName)
                             intent.putExtra(Constants.CORRECT_ANSWERS, mCorrectAnswers)
-                            intent.putExtra(Constants.TOTAL_QUESTIONS, mQuestionsList!!.size)
+                            intent.putExtra(Constants.TOTAL_QUESTIONS, mQuestionsList.size)
                             startActivity(intent)
                             finish()
                             // END
                         }
                     }
                 } else {
-                    val question = mQuestionsList?.get(mCurrentPosition - 1)
+                    val question = mQuestionsList[mCurrentPosition - 1]
 
                     // This is to check if the answer is wrong
-                    if (question!!.correctAnswer != mSelectedOptionPosition) {
+                    if (question.correctAnswer != mSelectedOptionPosition) {
                         answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
                     } else {
                         mCorrectAnswers++
@@ -109,7 +107,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                     // This is for correct answer
                     answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
 
-                    if (mCurrentPosition == mQuestionsList!!.size) {
+                    if (mCurrentPosition == mQuestionsList.size) {
                         binding.btnSubmit.text = "Проверить"
                     } else {
                         binding.btnSubmit.text = "Следующий вопрос"
@@ -126,11 +124,11 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      */
     private fun setQuestion() {
         val question =
-            mQuestionsList!!.get(mCurrentPosition - 1) // Getting the question from the list with the help of current position.
+            mQuestionsList[mCurrentPosition - 1] // Getting the question from the list with the help of current position.
 
         defaultOptionsView()
 
-        if (mCurrentPosition == mQuestionsList!!.size) {
+        if (mCurrentPosition == mQuestionsList.size) {
             binding.btnSubmit.text = "Конец"
         } else {
             binding.btnSubmit.text = "Проверить"

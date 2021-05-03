@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:background="#532573"
+    android:background="@color/colorPur"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -75,12 +75,12 @@
                     android:textColorHint="#7A8089" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_start"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@color/colorPrimary"
+                android:background="@android:color/black"
                 android:text="Начать"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
