@@ -12,8 +12,6 @@ import com.google.firebase.ktx.Firebase
 
 
 object Constants {
-
-
     // TODO (STEP 1: Create a constant variables which we required in the result screen.)
     // START
     const val USER_NAME: String = "user_name"
@@ -24,37 +22,29 @@ object Constants {
     fun getQuestions(): ArrayList<Question> {
         val questionsList = ArrayList<Question>()
 
-
-
         // 1
-        val que1 = Question(
+        questionsList.add(Question(
             1, "Какой это самолет?",
             R.drawable.sr,
             "Lockheed SR-71", "Боинг 707",
             "Cessna 172", "Hughes H-4 Hercules", 1
-        )
-
-        questionsList.add(que1)
+        ))
 
         // 2
-        val que2 = Question(
+        questionsList.add(Question(
             2, "Какой это самолет?",
             R.drawable.tu,
             "Cessna 172", "Боинг 747",
             "ТУ-144", "Douglas DC-3", 3
-        )
-
-        questionsList.add(que2)
+        ))
 
         // 3
-        val que3 = Question(
+        questionsList.add(Question(
             3, "Какой это самолет?",
             R.drawable.boeing,
             "Боинг 747", "Cessna 172",
             "Боинг 656", "Боинг 707", 4
-        )
-
-        questionsList.add(que3)
+        ))
 
         // 4
         val que4 = Question(

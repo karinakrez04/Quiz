@@ -60,35 +60,26 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.tv_option_one -> {
-
                 selectedOptionView(binding.tvOptionOne, 1)
             }
 
             R.id.tv_option_two -> {
-
                 selectedOptionView(binding.tvOptionTwo, 2)
             }
 
             R.id.tv_option_three -> {
-
                 selectedOptionView(binding.tvOptionThree, 3)
             }
 
             R.id.tv_option_four -> {
-
                 selectedOptionView(binding.tvOptionFour, 4)
             }
 
             R.id.btn_submit -> {
-
                 if (mSelectedOptionPosition == 0) {
-
                     mCurrentPosition++
-
                     when {
-
                         mCurrentPosition <= mQuestionsList!!.size -> {
-
                             setQuestion()
                         }
                         else -> {
@@ -134,7 +125,6 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      * A function for setting the question to UI components.
      */
     private fun setQuestion() {
-
         val question =
             mQuestionsList!!.get(mCurrentPosition - 1) // Getting the question from the list with the help of current position.
 
@@ -161,7 +151,6 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      * A function to set the view of selected option view.
      */
     private fun selectedOptionView(tv: TextView, selectedOptionNum: Int) {
-
         defaultOptionsView()
 
         mSelectedOptionPosition = selectedOptionNum
@@ -180,7 +169,6 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      * A function to set default options view when the new question is loaded or when the answer is reselected.
      */
     private fun defaultOptionsView() {
-
         val options = ArrayList<TextView>()
         options.add(0, binding.tvOptionOne)
         options.add(1, binding.tvOptionTwo)
@@ -201,9 +189,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      * A function for answer view which is used to highlight the answer is wrong or right.
      */
     private fun answerView(answer: Int, drawableView: Int) {
-
         when (answer) {
-
             1 -> {
                 binding.tvOptionOne.background = ContextCompat.getDrawable(
                     this@QuizQuestionsActivity,

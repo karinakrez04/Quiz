@@ -1,31 +1,21 @@
 package com.quizapp
 
-import android.content.ContentValues
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
+import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.hoc081098.viewbindingdelegate.viewBinding
 import com.quizapp.databinding.ActivityMainBinding
 
-
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val binding by viewBinding<ActivityMainBinding>()
     private lateinit var database: DatabaseReference
 
-
-
-    init {
-
-    }
     /**
      * This function is auto created by Android when the Activity Class is created.
      */
