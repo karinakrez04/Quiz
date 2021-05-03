@@ -22,17 +22,17 @@
                 android:id="@+id/btn_fifty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
-                android:layout_gravity="center_vertical"
                 android:src="@drawable/ic_fifty" />
 
             <TextView
                 android:id="@+id/tv_question"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_margin="10dp"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:textColor="#363A43"
                 android:textSize="22sp"
@@ -42,9 +42,9 @@
                 android:id="@+id/btn_friend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
-                android:layout_gravity="center_vertical"
                 android:src="@drawable/ic_user" />
         </LinearLayout>
 
@@ -149,10 +149,10 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:background="@color/colorPrimary"
-            android:text="SUBMIT"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="SUBMIT" />
 
     </LinearLayout>
 </ScrollView>

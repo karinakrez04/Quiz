@@ -4,19 +4,32 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.hoc081098.viewbindingdelegate.viewBinding
 import com.quizapp.databinding.ActivityQuizQuestionsBinding
 
-class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions), View.OnClickListener {
+class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions),
+    View.OnClickListener {
     private val binding by viewBinding<ActivityQuizQuestionsBinding>()
-    private var mCurrentPosition: Int = 1 // Default and the first question position
-    private var mQuestionsList = Constants.getQuestions()
+    private var mCurrentPosition: Int = 0 // Default and the first question position
+    private lateinit var database: FirebaseDatabase
+    private var mCurrentQuestion: Question? = null
 
+    //Позиция выбранного ответа
     private var mSelectedOptionPosition: Int = 0
+
+    //Счетчик правильных ответов
     private var mCorrectAnswers: Int = 0
 
     // TODO (STEP 3: Create a variable for getting the name from intent.)
@@ -27,8 +40,9 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        database = Firebase.database
 
-        setQuestion()
+        loadQuestion()
         //Обработка нажатия на кнопку "Помощь друга"
         binding.btnFriend.setOnClickListener {
             val intent = Intent()
@@ -75,45 +89,68 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
             }
 
             R.id.btn_submit -> {
-                if (mSelectedOptionPosition == 0) {
+                //Если ответ уже проверен
+                if (mSelectedOptionPosition == CHECKED) {
+                    //Если вопросы еще есть
+                    if (mCurrentPosition < 10) {
+                        loadQuestion()
+                    } else { //Если вопросы кончились
+                        binding.btnSubmit.apply {
+                            text = "Конец"
+                            setOnClickListener {
+                                startActivity(
+                                    Intent(
+                                        this@QuizQuestionsActivity,
+                                        ResultActivity::class.java
+                                    ).apply {
+                                        putExtra(Constants.USER_NAME, mUserName)
+                                        putExtra(Constants.TOTAL_QUESTIONS, 10)
+                                        putExtra(Constants.CORRECT_ANSWERS, mCorrectAnswers)
+                                    }
+                                )
+                                finish()
+                            }
+                        }
+                    }
+                    mSelectedOptionPosition = NOTHING_SELECTED
+                }
+                //Нужно проверить ответ
+                else {
+                    Log.i("TAG", "Checking")
+                    //Добавить единицу к позиции вопроса
                     mCurrentPosition++
-                    when {
-                        mCurrentPosition <= mQuestionsList.size -> {
-                            setQuestion()
+                    //Проверить
+                    when (mSelectedOptionPosition) {
+                        NOTHING_SELECTED -> {
+                            //Перейти к новому вопросу
+                            loadQuestion()
                         }
                         else -> {
-                            // TODO (STEP 5: Now remove the toast message and launch the result screen which we have created and also pass the user name and score details to it.)
-                            // START
-                            val intent =
-                                Intent(this@QuizQuestionsActivity, ResultActivity::class.java)
-                            intent.putExtra(Constants.USER_NAME, mUserName)
-                            intent.putExtra(Constants.CORRECT_ANSWERS, mCorrectAnswers)
-                            intent.putExtra(Constants.TOTAL_QUESTIONS, mQuestionsList.size)
-                            startActivity(intent)
-                            finish()
-                            // END
+                            //Если ответ правильный
+                            if (mSelectedOptionPosition == mCurrentQuestion!!.correctAnswer) {
+                                //Добавить ОЧКО
+                                mCorrectAnswers++
+                                //Покрасить ответ в зеленый
+                                answerView(
+                                    mSelectedOptionPosition,
+                                    R.drawable.correct_option_border_bg
+                                )
+                            } else { //Если ответ неверный
+                                //Покрасить выбранный в красный
+                                answerView(
+                                    mSelectedOptionPosition,
+                                    R.drawable.wrong_option_border_bg
+                                )
+                                //Покрасить правильный в зеленый
+                                answerView(
+                                    mCurrentQuestion!!.correctAnswer!!,
+                                    R.drawable.correct_option_border_bg
+                                )
+                            }
+                            mSelectedOptionPosition = CHECKED
+                            binding.btnSubmit.text = "Следующий вопрос"
                         }
                     }
-                } else {
-                    val question = mQuestionsList[mCurrentPosition - 1]
-
-                    // This is to check if the answer is wrong
-                    if (question.correctAnswer != mSelectedOptionPosition) {
-                        answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
-                    } else {
-                        mCorrectAnswers++
-                    }
-
-                    // This is for correct answer
-                    answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
-
-                    if (mCurrentPosition == mQuestionsList.size) {
-                        binding.btnSubmit.text = "Проверить"
-                    } else {
-                        binding.btnSubmit.text = "Следующий вопрос"
-                    }
-
-                    mSelectedOptionPosition = 0
                 }
             }
         }
@@ -122,27 +159,34 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
     /**
      * A function for setting the question to UI components.
      */
-    private fun setQuestion() {
-        val question =
-            mQuestionsList[mCurrentPosition - 1] // Getting the question from the list with the help of current position.
-
+    private fun loadQuestion() {
+        Log.i("TAG", "loadQuestion")
+        binding.btnSubmit.text = "Проверить"
         defaultOptionsView()
+        database.getReference("questions").child("$mCurrentPosition")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    mCurrentQuestion = snapshot.getValue(Question::class.java)
+                    Log.i("TAG", "Question - $mCurrentQuestion")
+                    defaultOptionsView()
+                    if (mCurrentQuestion == null) {
+                        binding.btnSubmit.text = "Конец"
+                    } else {
+                        binding.btnSubmit.text = "Проверить"
+                        binding.progressBar.progress = mCurrentPosition + 1
+                        binding.tvProgress.text =
+                            "${mCurrentPosition + 1} / ${binding.progressBar.max}"
+                        binding.tvQuestion.text = mCurrentQuestion!!.question
+                        binding.ivImage.setImageResource(mCurrentQuestion!!.image!!)
+                        binding.tvOptionOne.text = mCurrentQuestion!!.optionOne
+                        binding.tvOptionTwo.text = mCurrentQuestion!!.optionTwo
+                        binding.tvOptionThree.text = mCurrentQuestion!!.optionThree
+                        binding.tvOptionFour.text = mCurrentQuestion!!.optionFour
+                    }
+                }
 
-        if (mCurrentPosition == mQuestionsList.size) {
-            binding.btnSubmit.text = "Конец"
-        } else {
-            binding.btnSubmit.text = "Проверить"
-        }
-
-        binding.progressBar.progress = mCurrentPosition
-        binding.tvProgress.text = "$mCurrentPosition" + "/" + binding.progressBar.max
-
-        binding.tvQuestion.text = question.question
-        binding.ivImage.setImageResource(question.image)
-        binding.tvOptionOne.text = question.optionOne
-        binding.tvOptionTwo.text = question.optionTwo
-        binding.tvOptionThree.text = question.optionThree
-        binding.tvOptionFour.text = question.optionFour
+                override fun onCancelled(error: DatabaseError) {}
+            })
     }
 
     /**
@@ -150,7 +194,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      */
     private fun selectedOptionView(tv: TextView, selectedOptionNum: Int) {
         defaultOptionsView()
-
+        //Запоминаем позицию выбранного ответа
         mSelectedOptionPosition = selectedOptionNum
 
         tv.setTextColor(
@@ -186,7 +230,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
     /**
      * A function for answer view which is used to highlight the answer is wrong or right.
      */
-    private fun answerView(answer: Int, drawableView: Int) {
+    private fun answerView(answer: Int, @DrawableRes drawableView: Int) {
         when (answer) {
             1 -> {
                 binding.tvOptionOne.background = ContextCompat.getDrawable(
@@ -213,5 +257,10 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                 )
             }
         }
+    }
+
+    companion object {
+        const val NOTHING_SELECTED = 0
+        const val CHECKED = -1
     }
 }
