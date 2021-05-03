@@ -1,12 +1,12 @@
 package com.quizapp
 
 data class Question(
-    val id: Int,
-    val question: String,
-    val image: Int,
-    val optionOne: String,
-    val optionTwo: String,
-    val optionThree: String,
-    val optionFour: String,
-    val correctAnswer: Int
+    val id: Int? = null,
+    val question: String? = null,
+    val image: Int? = null,
+    val optionOne: String? = null,
+    val optionTwo: String? = null,
+    val optionThree: String? = null,
+    val optionFour: String? = null,
+    val correctAnswer: Int? = null
 )
