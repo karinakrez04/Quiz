@@ -15,7 +15,6 @@ class ResultActivity : AppCompatActivity(R.layout.activity_result) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         // TODO (STEP 6: Hide the status bar and get the details from intent and set it to the UI. And also add a click event to the finish button.)
         // START
         // Hide the status bar.
@@ -29,6 +28,7 @@ class ResultActivity : AppCompatActivity(R.layout.activity_result) {
 
         binding.tvScore.text = "Ваш счет $correctAnswers из $totalQuestions."
 
+        binding.btnFinish.text = "В начало"
         binding.btnFinish.setOnClickListener {
             startActivity(Intent(this@ResultActivity, MainActivity::class.java))
         }
