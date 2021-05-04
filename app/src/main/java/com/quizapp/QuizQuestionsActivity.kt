@@ -10,6 +10,8 @@ import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import com.bumptech.glide.Glide
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -43,12 +45,14 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
         super.onCreate(savedInstanceState)
         database = Firebase.database
 
+        blockViews(false)
         loadQuestion()
         //Обработка нажатия на кнопку "Помощь друга"
         binding.btnFriend.setOnClickListener {
             val intent = Intent()
             intent.action = Intent.ACTION_SEND
             intent.putExtra(Intent.EXTRA_TEXT, buildString {
+                append("${mCurrentQuestion?.imageLink}\n")
                 append("${binding.tvQuestion.text}\n")
                 append("1. ${binding.tvOptionOne.text}\n")
                 append("2. ${binding.tvOptionTwo.text}\n")
@@ -57,6 +61,36 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
             })
             intent.type = "text/plain"
             startActivity(Intent.createChooser(intent, "Share To:"))
+        }
+
+        //Обработка нажатия на кнопку "50/50"
+        binding.btnFifty.setOnClickListener {
+            if (mCurrentQuestion != null) {
+                //Список всех TextView ответов
+                val options = mutableListOf<TextView>()
+                options.add(0, binding.tvOptionOne)
+                options.add(1, binding.tvOptionTwo)
+                options.add(2, binding.tvOptionThree)
+                options.add(3, binding.tvOptionFour)
+
+                //Индексы
+                val answersToBlock = mutableListOf(0, 1, 2, 3)
+
+                //Индекс правильного ответа
+                val correctAnswerIndex = mCurrentQuestion!!.correctAnswer!! - 1
+                answersToBlock.removeAt(correctAnswerIndex)
+
+                //Рандомный индекс, чтобы оставить рандомный ответ с правильным
+                val randomIndex = (0..2).random()
+                answersToBlock.removeAt(randomIndex)
+
+                for (index in 0..3) {
+                    if (answersToBlock.contains(index)) {
+                        colorAnswerView(index + 1, R.drawable.blocked_option_border_bg)
+                        blockAnswerView(index + 1)
+                    }
+                }
+            }
         }
 
         // TODO (STEP 4: Get the NAME from intent and assign it the variable.)
@@ -68,7 +102,8 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
         binding.tvOptionTwo.setOnClickListener(this)
         binding.tvOptionThree.setOnClickListener(this)
         binding.tvOptionFour.setOnClickListener(this)
-        binding.btnSubmit.setOnClickListener(this)
+        binding.btnCheck.setOnClickListener(this)
+        binding.btnNextQuestion.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -89,74 +124,104 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                 selectedOptionView(binding.tvOptionFour, 4)
             }
 
-            R.id.btn_submit -> {
-                //Если ответ уже проверен
-                if (mSelectedOptionPosition == CHECKED) {
-                    //Если вопросы еще есть
-                    if (mCurrentPosition < 10) {
-                        loadQuestion()
-                    } else { //Если вопросы кончились
-                        binding.btnSubmit.apply {
-                            text = "Конец"
-                            setOnClickListener {
-                                startActivity(
-                                    Intent(
-                                        this@QuizQuestionsActivity,
-                                        ResultActivity::class.java
-                                    ).apply {
-                                        putExtra(Constants.USER_NAME, mUserName)
-                                        putExtra(Constants.TOTAL_QUESTIONS, 10)
-                                        putExtra(Constants.CORRECT_ANSWERS, mCorrectAnswers)
-                                        putExtra(Constants.INCORRECT_ANSWERS, mIncorrectAnswers)
-                                    }
-                                )
-                                finish()
-                            }
-                        }
-                    }
-                    mSelectedOptionPosition = NOTHING_SELECTED
-                }
+            R.id.btn_check -> {
                 //Нужно проверить ответ
-                else {
-                    Log.i("TAG", "Checking")
-                    //Добавить единицу к позиции вопроса
-                    mCurrentPosition++
-                    //Проверить
-                    when (mSelectedOptionPosition) {
-                        NOTHING_SELECTED -> {
-                            //Перейти к новому вопросу
-                            loadQuestion()
+                Log.i(
+                    "TAG",
+                    "Checking $mCurrentPosition question, mSelectedOptionPosition - $mSelectedOptionPosition"
+                )
+                when (mSelectedOptionPosition) {
+                    //Если ничего не выбрано
+                    NOTHING_SELECTED -> {
+                        if (mCurrentPosition == 9) {
+                            startResultActivity()
+                        } else checkNextQuestion()
+                    }
+                    else -> {
+                        //Если ответ правильный
+                        blockHelpButtons(false)
+                        if (mSelectedOptionPosition == mCurrentQuestion?.correctAnswer) {
+                            //Добавить ОЧКО ВЕРНОСТИ
+                            mCorrectAnswers++
+                            //Покрасить ответ в зеленый
+                            colorAnswerView(
+                                mSelectedOptionPosition,
+                                R.drawable.correct_option_border_bg
+                            )
+                        } else { //Если ответ неверный
+                            //Добавить ОЧКО НЕВЕРНОСТИ
+                            mIncorrectAnswers++
+                            //Покрасить выбранный в красный
+                            colorAnswerView(
+                                mSelectedOptionPosition,
+                                R.drawable.wrong_option_border_bg
+                            )
+                            //Покрасить правильный в зеленый
+                            colorAnswerView(
+                                mCurrentQuestion!!.correctAnswer!!,
+                                R.drawable.correct_option_border_bg
+                            )
                         }
-                        else -> {
-                            //Если ответ правильный
-                            if (mSelectedOptionPosition == mCurrentQuestion!!.correctAnswer) {
-                                //Добавить ОЧКО ВЕРНОСТИ
-                                mCorrectAnswers++
-                                //Покрасить ответ в зеленый
-                                answerView(
-                                    mSelectedOptionPosition,
-                                    R.drawable.correct_option_border_bg
-                                )
-                            } else { //Если ответ неверный
-                                //Добавить ОЧКО НЕВЕРНОСТИ
-                                mIncorrectAnswers++
-                                //Покрасить выбранный в красный
-                                answerView(
-                                    mSelectedOptionPosition,
-                                    R.drawable.wrong_option_border_bg
-                                )
-                                //Покрасить правильный в зеленый
-                                answerView(
-                                    mCurrentQuestion!!.correctAnswer!!,
-                                    R.drawable.correct_option_border_bg
-                                )
-                            }
-                            mSelectedOptionPosition = CHECKED
-                            binding.btnSubmit.text = "Следующий вопрос"
-                        }
+                        checkButtonVisible(false)
                     }
                 }
             }
+
+            R.id.btn_next_question -> checkNextQuestion()
+        }
+    }
+
+    private fun checkNextQuestion() {
+        mCurrentPosition++
+        mSelectedOptionPosition = NOTHING_SELECTED
+        if (mCurrentPosition < 10) {
+            if (mCurrentPosition == 9) {
+                binding.btnNextQuestion.apply {
+                    text = "Конец"
+                    setOnClickListener(resultClickListener)
+                }
+            }
+            loadQuestion()
+            blockHelpButtons(true)
+            unblockAnswerButtons()
+        }
+    }
+
+    private val resultClickListener = View.OnClickListener { startResultActivity() }
+
+    private fun startResultActivity() {
+        startActivity(
+            Intent(
+                this@QuizQuestionsActivity,
+                ResultActivity::class.java
+            ).apply {
+                putExtra(Constants.USER_NAME, mUserName)
+                putExtra(Constants.TOTAL_QUESTIONS, 10)
+                putExtra(Constants.CORRECT_ANSWERS, mCorrectAnswers)
+                putExtra(Constants.INCORRECT_ANSWERS, mIncorrectAnswers)
+            }
+        )
+        finish()
+    }
+
+    //Менять видимость кнопки "Проверить"
+    private fun checkButtonVisible(visible: Boolean) {
+        binding.btnCheck.isVisible = visible
+    }
+
+    //Заблокировать кнопки помощи
+    private fun blockHelpButtons(enabled: Boolean) {
+        binding.btnFifty.isEnabled = enabled
+        binding.btnFriend.isEnabled = enabled
+    }
+
+    //Разблокировать кнопки ответов
+    private fun unblockAnswerButtons() {
+        binding.apply {
+            tvOptionOne.isEnabled = true
+            tvOptionTwo.isEnabled = true
+            tvOptionThree.isEnabled = true
+            tvOptionFour.isEnabled = true
         }
     }
 
@@ -164,8 +229,8 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      * A function for setting the question to UI components.
      */
     private fun loadQuestion() {
-        Log.i("TAG", "loadQuestion")
-        binding.btnSubmit.text = "Проверить"
+        Log.i("TAG", "loadQuestion, mCurrentPosition - $mCurrentPosition")
+        binding.btnCheck.text = "Проверить"
         defaultOptionsView()
         database.getReference("questions").child("$mCurrentPosition")
             .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -173,23 +238,30 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                     mCurrentQuestion = snapshot.getValue(Question::class.java)
                     Log.i("TAG", "Question - $mCurrentQuestion")
                     defaultOptionsView()
-                    if (mCurrentQuestion == null) {
-                        binding.btnSubmit.text = "Конец"
-                    } else {
-                        binding.btnSubmit.text = "Проверить"
-                        binding.progressBar.progress = mCurrentPosition + 1
+                    if (mCurrentQuestion != null) {
+                        binding.btnCheck.text = "Проверить"
+                        binding.progressBar.progress = mCurrentQuestion!!.id!!
                         binding.tvProgress.text =
-                            "${mCurrentPosition + 1} / ${binding.progressBar.max}"
+                            "${mCurrentQuestion!!.id!!} / ${binding.progressBar.max}"
                         binding.tvQuestion.text = mCurrentQuestion!!.question
-                        binding.ivImage.setImageResource(mCurrentQuestion!!.image!!)
+                        Glide.with(this@QuizQuestionsActivity)
+                            .load(mCurrentQuestion!!.imageLink)
+                            .into(binding.ivImage)
+                        //binding.ivImage.setImageResource(mCurrentQuestion!!.image!!)
                         binding.tvOptionOne.text = mCurrentQuestion!!.optionOne
                         binding.tvOptionTwo.text = mCurrentQuestion!!.optionTwo
                         binding.tvOptionThree.text = mCurrentQuestion!!.optionThree
                         binding.tvOptionFour.text = mCurrentQuestion!!.optionFour
                     }
+                    blockViews(true)
+                    checkButtonVisible(true)
+                    defaultOptionsView()
                 }
 
-                override fun onCancelled(error: DatabaseError) {}
+                override fun onCancelled(error: DatabaseError) {
+                    blockViews(true)
+                    checkButtonVisible(true)
+                }
             })
     }
 
@@ -197,7 +269,6 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      * A function to set the view of selected option view.
      */
     private fun selectedOptionView(tv: TextView, selectedOptionNum: Int) {
-        defaultOptionsView()
         //Запоминаем позицию выбранного ответа
         mSelectedOptionPosition = selectedOptionNum
 
@@ -234,7 +305,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
     /**
      * A function for answer view which is used to highlight the answer is wrong or right.
      */
-    private fun answerView(answer: Int, @DrawableRes drawableView: Int) {
+    private fun colorAnswerView(answer: Int, @DrawableRes drawableView: Int) {
         when (answer) {
             1 -> {
                 binding.tvOptionOne.background = ContextCompat.getDrawable(
@@ -263,8 +334,28 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
         }
     }
 
+    private fun blockAnswerView(answer: Int) {
+        when (answer) {
+            1 -> binding.tvOptionOne.isEnabled = false
+            2 -> binding.tvOptionTwo.isEnabled = false
+            3 -> binding.tvOptionThree.isEnabled = false
+            4 -> binding.tvOptionFour.isEnabled = false
+        }
+    }
+
+    //Заблокировать все кнопки
+    private fun blockViews(enabled: Boolean) {
+        binding.apply {
+            tvOptionOne.isEnabled = enabled
+            tvOptionTwo.isEnabled = enabled
+            tvOptionThree.isEnabled = enabled
+            tvOptionFour.isEnabled = enabled
+            btnCheck.isEnabled = enabled
+            btnNextQuestion.isEnabled = enabled
+        }
+    }
+
     companion object {
         const val NOTHING_SELECTED = 0
-        const val CHECKED = -1
     }
 }
