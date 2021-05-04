@@ -35,6 +35,9 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
     private var mCorrectAnswers: Int = 0
     private var mIncorrectAnswers: Int = 0
 
+    //Была ли уже проверка
+    private var isAnswerChecked = false
+
     // TODO (STEP 3: Create a variable for getting the name from intent.)
     private var mUserName: String? = null
 
@@ -137,9 +140,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                             startResultActivity()
                         } else checkNextQuestion()
                     }
-                    else -> {
-                        //Если ответ правильный
-                        blockHelpButtons(false)
+                    else -> { //Если ответ правильный
                         if (mSelectedOptionPosition == mCurrentQuestion?.correctAnswer) {
                             //Добавить ОЧКО ВЕРНОСТИ
                             mCorrectAnswers++
@@ -162,7 +163,10 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                                 R.drawable.correct_option_border_bg
                             )
                         }
+                        //Заблокировать кнопки помощи, потому что после проверки они не нужны
+                        blockHelpButtons(false)
                         checkButtonVisible(false)
+                        isAnswerChecked = true
                     }
                 }
             }
@@ -256,6 +260,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                     blockViews(true)
                     checkButtonVisible(true)
                     defaultOptionsView()
+                    isAnswerChecked = false
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -269,17 +274,22 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      * A function to set the view of selected option view.
      */
     private fun selectedOptionView(tv: TextView, selectedOptionNum: Int) {
-        //Запоминаем позицию выбранного ответа
-        mSelectedOptionPosition = selectedOptionNum
+        if (!isAnswerChecked) {
+            if (mSelectedOptionPosition != NOTHING_SELECTED) {
+                defaultOptionsView()
+            }
+            //Запоминаем позицию выбранного ответа
+            mSelectedOptionPosition = selectedOptionNum
 
-        tv.setTextColor(
-            Color.parseColor("#363A43")
-        )
-        tv.setTypeface(tv.typeface, Typeface.BOLD)
-        tv.background = ContextCompat.getDrawable(
-            this@QuizQuestionsActivity,
-            R.drawable.selected_option_border_bg
-        )
+            tv.setTextColor(
+                Color.parseColor("#363A43")
+            )
+            tv.setTypeface(tv.typeface, Typeface.BOLD)
+            tv.background = ContextCompat.getDrawable(
+                this@QuizQuestionsActivity,
+                R.drawable.selected_option_border_bg
+            )
+        }
     }
 
     /**
