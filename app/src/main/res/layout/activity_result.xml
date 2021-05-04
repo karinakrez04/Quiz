@@ -22,7 +22,6 @@
     <ImageView
         android:id="@+id/iv_trophy"
         android:layout_width="wrap_content"
-
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
         android:contentDescription="image"
@@ -67,4 +66,18 @@
         android:textSize="18sp"
         android:textStyle="bold"
         tools:text="Конец" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_statistics"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPur"
+        android:layout_marginTop="10dp"
+        android:padding="40dp"
+
+        >
+
+
+    </com.google.android.material.button.MaterialButton>
+
 </LinearLayout>
