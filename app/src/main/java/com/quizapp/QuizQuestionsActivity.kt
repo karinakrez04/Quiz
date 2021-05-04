@@ -31,6 +31,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
 
     //Счетчик правильных ответов
     private var mCorrectAnswers: Int = 0
+    private var mIncorrectAnswers: Int = 0
 
     // TODO (STEP 3: Create a variable for getting the name from intent.)
     private var mUserName: String? = null
@@ -106,6 +107,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                                         putExtra(Constants.USER_NAME, mUserName)
                                         putExtra(Constants.TOTAL_QUESTIONS, 10)
                                         putExtra(Constants.CORRECT_ANSWERS, mCorrectAnswers)
+                                        putExtra(Constants.INCORRECT_ANSWERS, mIncorrectAnswers)
                                     }
                                 )
                                 finish()
@@ -128,7 +130,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                         else -> {
                             //Если ответ правильный
                             if (mSelectedOptionPosition == mCurrentQuestion!!.correctAnswer) {
-                                //Добавить ОЧКО
+                                //Добавить ОЧКО ВЕРНОСТИ
                                 mCorrectAnswers++
                                 //Покрасить ответ в зеленый
                                 answerView(
@@ -136,6 +138,8 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                                     R.drawable.correct_option_border_bg
                                 )
                             } else { //Если ответ неверный
+                                //Добавить ОЧКО НЕВЕРНОСТИ
+                                mIncorrectAnswers++
                                 //Покрасить выбранный в красный
                                 answerView(
                                     mSelectedOptionPosition,

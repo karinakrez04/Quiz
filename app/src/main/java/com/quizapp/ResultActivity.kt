@@ -23,8 +23,14 @@ class ResultActivity : AppCompatActivity(R.layout.activity_result) {
 
         val totalQuestions = intent.getIntExtra(Constants.TOTAL_QUESTIONS, 0)
         val correctAnswers = intent.getIntExtra(Constants.CORRECT_ANSWERS, 0)
+        val incorrectAnswers = intent.getIntExtra(Constants.INCORRECT_ANSWERS, 0)
 
         binding.tvScore.text = "Ваш счет $correctAnswers из $totalQuestions"
+
+        binding.correctAnswers.text = "Правильные $correctAnswers"
+        binding.incorrectAnswers.text = "Неправильные $incorrectAnswers"
+        binding.unansweredAnswers.text =
+            "Не отвеченные ${totalQuestions - (correctAnswers + incorrectAnswers)}"
 
         binding.btnFinish.setOnClickListener {
             startActivity(Intent(this@ResultActivity, MainActivity::class.java))
