@@ -41,6 +41,15 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
     // TODO (STEP 3: Create a variable for getting the name from intent.)
     private var mUserName: String? = null
 
+    private val optionsList by lazy {
+        listOf(
+            binding.tvOptionOne,
+            binding.tvOptionTwo,
+            binding.tvOptionThree,
+            binding.tvOptionFour
+        )
+    }
+
     /**
      * This function is auto created by Android when the Activity Class is created.
      */
@@ -57,10 +66,9 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
             intent.putExtra(Intent.EXTRA_TEXT, buildString {
                 append("${mCurrentQuestion?.imageLink}\n")
                 append("${binding.tvQuestion.text}\n")
-                append("1. ${binding.tvOptionOne.text}\n")
-                append("2. ${binding.tvOptionTwo.text}\n")
-                append("3. ${binding.tvOptionThree.text}\n")
-                append("4. ${binding.tvOptionFour.text}\n")
+                optionsList.forEachIndexed { index, textView ->
+                    if (textView.isEnabled) append("${index + 1}. ${textView.text}")
+                }
             })
             intent.type = "text/plain"
             startActivity(Intent.createChooser(intent, "Share To:"))
@@ -69,13 +77,6 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
         //Обработка нажатия на кнопку "50/50"
         binding.btnFifty.setOnClickListener {
             if (mCurrentQuestion != null) {
-                //Список всех TextView ответов
-                val options = mutableListOf<TextView>()
-                options.add(0, binding.tvOptionOne)
-                options.add(1, binding.tvOptionTwo)
-                options.add(2, binding.tvOptionThree)
-                options.add(3, binding.tvOptionFour)
-
                 //Индексы
                 val answersToBlock = mutableListOf(0, 1, 2, 3)
 
@@ -296,13 +297,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      * A function to set default options view when the new question is loaded or when the answer is reselected.
      */
     private fun defaultOptionsView() {
-        val options = ArrayList<TextView>()
-        options.add(0, binding.tvOptionOne)
-        options.add(1, binding.tvOptionTwo)
-        options.add(2, binding.tvOptionThree)
-        options.add(3, binding.tvOptionFour)
-
-        for (option in options) {
+        for (option in optionsList) {
             option.setTextColor(Color.parseColor("#7A8089"))
             option.typeface = Typeface.DEFAULT
             option.background = ContextCompat.getDrawable(
