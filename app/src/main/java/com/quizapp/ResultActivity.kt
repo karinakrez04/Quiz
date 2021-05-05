@@ -19,14 +19,15 @@ class ResultActivity : AppCompatActivity(R.layout.activity_result) {
         // Hide the status bar.
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
 
-        binding.tvName.text = intent.getStringExtra(Constants.USER_NAME)
-
+        val userName = intent.getStringExtra(Constants.USER_NAME)
         val totalQuestions = intent.getIntExtra(Constants.TOTAL_QUESTIONS, 0)
         val correctAnswers = intent.getIntExtra(Constants.CORRECT_ANSWERS, 0)
         val incorrectAnswers = intent.getIntExtra(Constants.INCORRECT_ANSWERS, 0)
 
-        binding.tvScore.text = "Ваш счет $correctAnswers из $totalQuestions"
+        StatisticsSaver.saveNewResult("$userName - $correctAnswers/$totalQuestions")
 
+        binding.tvName.text = userName
+        binding.tvScore.text = "Ваш счет $correctAnswers из $totalQuestions"
         binding.correctAnswers.text = "Правильные $correctAnswers"
         binding.incorrectAnswers.text = "Неправильные $incorrectAnswers"
         binding.unansweredAnswers.text =
@@ -35,6 +36,10 @@ class ResultActivity : AppCompatActivity(R.layout.activity_result) {
         binding.btnFinish.setOnClickListener {
             startActivity(Intent(this@ResultActivity, MainActivity::class.java))
             finish()
+        }
+
+        binding.btnStatistics.setOnClickListener {
+            startActivity(Intent(this@ResultActivity, StatisticsActivity::class.java))
         }
         // END
     }

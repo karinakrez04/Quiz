@@ -23,10 +23,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         //This call the parent constructor
         super.onCreate(savedInstanceState)
 
+        StatisticsSaver.initPath(filesDir.absolutePath)
+
         database = Firebase.database.reference
         database.child("questions").get().addOnSuccessListener {
             Log.i("firebase", "Got value ${it.value}")
-        }.addOnFailureListener{
+        }.addOnFailureListener {
             Log.e("firebase", "Error getting data", it)
         }
 

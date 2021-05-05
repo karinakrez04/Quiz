@@ -12,7 +12,6 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize"
             android:launchMode="singleInstance">
             <intent-filter>
@@ -30,7 +29,11 @@
         <activity
             android:name=".ResultActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"
+            android:launchMode="singleInstance" />
+
+        <activity
+            android:name=".StatisticsActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleInstance" />
     </application>
 </manifest>
