@@ -94,6 +94,7 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
                         blockAnswerView(index + 1)
                     }
                 }
+                binding.btnFifty.isEnabled = false
             }
         }
 
@@ -297,14 +298,16 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
      * A function to set default options view when the new question is loaded or when the answer is reselected.
      */
     private fun defaultOptionsView() {
-        for (option in optionsList) {
-            option.setTextColor(Color.parseColor("#7A8089"))
-            option.typeface = Typeface.DEFAULT
-            option.background = ContextCompat.getDrawable(
-                this@QuizQuestionsActivity,
-                R.drawable.default_option_border_bg
-            )
-        }
+        optionsList
+            .filter { option -> option.isEnabled }
+            .forEach { option ->
+                option.setTextColor(Color.parseColor("#7A8089"))
+                option.typeface = Typeface.DEFAULT
+                option.background = ContextCompat.getDrawable(
+                    this@QuizQuestionsActivity,
+                    R.drawable.default_option_border_bg
+                )
+            }
     }
 
     /**
