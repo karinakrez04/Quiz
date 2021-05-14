@@ -38,7 +38,7 @@ class ResultActivity : AppCompatActivity(R.layout.activity_result) {
             finish()
         }
 
-        binding.btnStatistics.setOnClickListener {
+        binding.btnRecord.setOnClickListener {
             startActivity(Intent(this@ResultActivity, StatisticsActivity::class.java))
         }
         // END

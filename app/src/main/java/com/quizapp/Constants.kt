@@ -123,6 +123,17 @@ object Constants {
 
         questionsList.add(que10)
 
+        // 11
+        val que11 = Question(
+            11, "Какой это самолет?",
+            R.drawable.flyer,
+            "",
+            "Flyer I", "Cessna 172",
+            "Cessna 172", "Flyer II", 1
+        )
+
+        questionsList.add(que11)
+
         return questionsList
     }
 }

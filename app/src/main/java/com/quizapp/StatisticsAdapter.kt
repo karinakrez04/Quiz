@@ -8,6 +8,7 @@ import com.quizapp.databinding.ItemResultBinding
 class StatisticsAdapter :
     RecyclerView.Adapter<StatisticsAdapter.HistoryViewHolder>() {
     //Список строк истории вычислений
+
     //Один элемент имеет вид "Алекс - 2/10"
     private val resultItems = mutableListOf<String>()
 

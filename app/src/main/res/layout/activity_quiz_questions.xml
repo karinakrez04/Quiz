@@ -84,7 +84,7 @@
         <TextView
             android:id="@+id/tv_progress"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:gravity="center"
             android:padding="15dp"
             android:textColorHint="#7A8089"

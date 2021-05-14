@@ -20,6 +20,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.hoc081098.viewbindingdelegate.viewBinding
 import com.quizapp.databinding.ActivityQuizQuestionsBinding
+import java.io.File
 
 class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions),
     View.OnClickListener {
@@ -73,6 +74,8 @@ class QuizQuestionsActivity : AppCompatActivity(R.layout.activity_quiz_questions
             intent.type = "text/plain"
             startActivity(Intent.createChooser(intent, "Share To:"))
         }
+
+
 
         //Обработка нажатия на кнопку "50/50"
         binding.btnFifty.setOnClickListener {

@@ -55,7 +55,7 @@
         android:layout_marginTop="10dp"
         android:textColor="@android:color/secondary_text_dark"
         android:textSize="20sp"
-        tools:text="Ваш счет 9 из 10" />
+        tools:text="Ваш счет 9 из 11" />
 
 
     <com.google.android.material.button.MaterialButton
